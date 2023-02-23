@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask GroundLayer;
     public Transform GroundCheck;
 
+    private Animator Animator;
+
     private Rigidbody2D PlayerRb2D;
 
     private float _jumpTimer;
@@ -19,13 +21,11 @@ public class PlayerMovement : MonoBehaviour
 
     private bool _isFacingRight;
     private bool _isJumping;
-    private bool _isFalling;
-    private bool _isRunning;
-
 
     void Start()
     {
-        PlayerRb2D = gameObject.GetComponent<Rigidbody2D>(); 
+        PlayerRb2D = gameObject.GetComponent<Rigidbody2D>();
+        Animator = gameObject.GetComponent<Animator>();
     }
 
     void Update()
@@ -38,6 +38,11 @@ public class PlayerMovement : MonoBehaviour
         {
             Flip();
         }
+
+        if (!_isJumping)
+        {
+            Animator.SetBool("isJumping", false);
+        }
     }
 
     void FixedUpdate()
@@ -46,9 +51,14 @@ public class PlayerMovement : MonoBehaviour
 
         if (_isJumping && jumpDuration > _jumpTimer)
         {
-            Debug.Log("BRUH");
+            Animator.SetBool("isJumping", true);
             _jumpTimer += 1 * Time.deltaTime;
             PlayerRb2D.velocity = new Vector2(PlayerRb2D.velocity.x, jumpPower * 0.5f);
+        }
+
+        if (jumpDuration <= _jumpTimer)
+        {
+            Animator.SetBool("isJumping", false);
         }
     }
 
@@ -63,6 +73,16 @@ public class PlayerMovement : MonoBehaviour
     public void move(InputAction.CallbackContext context)
     {
         _horizontal = context.ReadValue<Vector2>().x;
+
+        if (context.performed && IsGrounded())
+        {
+            Animator.SetBool("isRunning", true);
+        }
+
+        if (context.canceled)
+        {
+            Animator.SetBool("isRunning", false);
+        }
     }
 
     public void jump(InputAction.CallbackContext context)
@@ -77,12 +97,6 @@ public class PlayerMovement : MonoBehaviour
         if (context.canceled)
         {
             _isJumping = false;
-        }
-
-        if (!_isJumping && !IsGrounded())
-        {
-            _isJumping = false;
-            _isFalling = true;
         }
     }
 
