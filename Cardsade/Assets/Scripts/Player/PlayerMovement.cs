@@ -74,7 +74,7 @@ public class PlayerMovement : MonoBehaviour
     {
         _horizontal = context.ReadValue<Vector2>().x;
 
-        if (context.performed && IsGrounded())
+        if (context.performed)
         {
             Animator.SetBool("isRunning", true);
         }
