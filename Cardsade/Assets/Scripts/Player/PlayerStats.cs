@@ -12,35 +12,39 @@ public class PlayerStats : MonoBehaviour
     public int requiredEXP = 5; //config this 
     public int maxHealth;
     public int baseHealth = 50; //config this 
-    public static int currentHealth;
-    public int maxPoint;
+    public int currentHealth;
+    public int maxPoint = 8; //config this
     public int currentPoint;
     public int maxShield;
     public int currentShield;
 
-    public HealthBar healthBar;
+    public HealthBar HealthBar;
+    public PointBar PointBar;
+    public ShieldBar ShieldBar;
+    public HealthCounter HealthCounter;
 
     void Start()
     {
         PlayerStat("GOOFYAHH");
+        PlayerBattleStat(1);
         currentHealth = maxHealth;
-        healthBar.SetMaxHealth(maxHealth);
+        HealthBar.SetMaxHealth(maxHealth);
+        HealthCounter.SetHealthCounter(currentHealth);
+        PointBar.SetMaxPoint(maxPoint);
+        ShieldBar.SetMaxShield(maxShield);
     }
 
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TakeDamage(20);
-        }
+
     }
 
     public void TakeDamage(int _damage)
     {
         currentHealth -= _damage;
-        healthBar.SetHealth(currentHealth);
-        Debug.Log("the health of player is " + currentHealth + " and your name is " + name);
+        HealthBar.SetHealth(currentHealth);
+        HealthCounter.SetHealthCounter(currentHealth);
     }
 
     private void PlayerStat(string _name)
@@ -51,6 +55,12 @@ public class PlayerStats : MonoBehaviour
         maxPoint = 8;
         currentEXP = 0;
         maxHealth = baseHealth + level * 5;
-        maxShield = 0;
+        maxShield = maxHealth;
+    }
+
+    private void PlayerBattleStat(int _startPoint)
+    {
+        currentPoint = _startPoint;
+        currentShield = 0;
     }
 }

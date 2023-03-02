@@ -5,27 +5,37 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed;
-    public float jumpPower;
+    // Accessing Other Scripts
+    [SerializeField] internal PlayerController PlayerControllerScript;
 
-    public LayerMask GroundLayer;
-    public Transform GroundCheck;
-
-    private Animator Animator;
-
+    // Accessing Other Components
+    [SerializeField] private LayerMask GroundLayer;
+    [SerializeField] private Transform GroundCheck;
     private Rigidbody2D PlayerRb2D;
 
-    private float _jumpTimer;
-    [SerializeField] private float jumpDuration;
+    // Movement Variables ==========================================
+    public float jumpDuration;
+    public float moveSpeed;
+    public float jumpPower;
+    [HideInInspector] public bool isJumping;
+    [HideInInspector] public float jumpTimer;
+
     private float _horizontal;
-
     private bool _isFacingRight;
-    private bool _isJumping;
+    // ============================================================
 
-    void Start()
+    private void Awake()
     {
+        PlayerControllerScript = gameObject.GetComponent<PlayerController>();
         PlayerRb2D = gameObject.GetComponent<Rigidbody2D>();
-        Animator = gameObject.GetComponent<Animator>();
+    }
+
+    void FixedUpdate()  // Make sure player can't jump forever
+    {
+        if (isJumping)
+        {
+            jumpTimer += 1 * Time.deltaTime;
+        }
     }
 
     void Update()
@@ -38,28 +48,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Flip();
         }
-
-        if (!_isJumping)
-        {
-            Animator.SetBool("isJumping", false);
-        }
-    }
-
-    void FixedUpdate()
-    {
-        PlayerRb2D.velocity = new Vector2(_horizontal * moveSpeed, PlayerRb2D.velocity.y);
-
-        if (_isJumping && jumpDuration > _jumpTimer)
-        {
-            Animator.SetBool("isJumping", true);
-            _jumpTimer += 1 * Time.deltaTime;
-            PlayerRb2D.velocity = new Vector2(PlayerRb2D.velocity.x, jumpPower * 0.5f);
-        }
-
-        if (jumpDuration <= _jumpTimer)
-        {
-            Animator.SetBool("isJumping", false);
-        }
     }
 
     private void Flip()
@@ -70,33 +58,47 @@ public class PlayerMovement : MonoBehaviour
         transform.localScale = localScale;
     }
 
-    public void move(InputAction.CallbackContext context)
+    public bool isRunning;
+    public void MoveInputDetector(InputAction.CallbackContext context) // REMEMBER TO UPDATE THIS IN UNITY INPUT EVENT
     {
         _horizontal = context.ReadValue<Vector2>().x;
 
         if (context.performed)
         {
-            Animator.SetBool("isRunning", true);
+            isRunning = true;
         }
 
         if (context.canceled)
         {
-            Animator.SetBool("isRunning", false);
+            isRunning = false;
         }
     }
 
-    public void jump(InputAction.CallbackContext context)
+    public void JumpInputDetector(InputAction.CallbackContext context) // REMEMBER TO UPDATE THIS IN UNITY INPUT EVENT
     {
-        if (context.performed && IsGrounded())
+        if (context.performed && IsGrounded())  // Reset jump, also tells PlayerAnimationScript to play Jump Anim
         {
-            _isJumping = true;
-            _jumpTimer = 0;
-            PlayerRb2D.velocity = new Vector2(PlayerRb2D.velocity.x, jumpPower);
+            isJumping = true;
+            jumpTimer = 0;
+            PlayerControllerScript.PlayerRb2D.velocity = new Vector2(PlayerControllerScript.PlayerRb2D.velocity.x, jumpPower); // Small hop when player jump
         }
 
         if (context.canceled)
         {
-            _isJumping = false;
+            isJumping = false;
+        }
+    }
+
+    public void HorizontalMovement() // Put this & VerticleMovement in FixedUpdate() of PlayerControllerScript
+    {
+        PlayerRb2D.velocity = new Vector2(_horizontal * moveSpeed, PlayerRb2D.velocity.y);
+    }
+
+    public void VerticleMovement() 
+    {
+        if (isJumping && jumpDuration > jumpTimer)
+        {
+            PlayerRb2D.velocity = new Vector2(PlayerRb2D.velocity.x, jumpPower * 0.5f);
         }
     }
 
