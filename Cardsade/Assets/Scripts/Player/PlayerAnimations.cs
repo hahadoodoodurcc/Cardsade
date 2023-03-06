@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PlayerAnimations : MonoBehaviour
 {
-    //Accessing Other Scripts
+    // Accessing Other Scripts
     [SerializeField] internal PlayerController PlayerControllerScript;
     [SerializeField] internal PlayerMovement PlayerMovementScript;
 
-    //Access Player Component
+    // Access Player Component
     public Animator Animator;
 
     private void Awake()

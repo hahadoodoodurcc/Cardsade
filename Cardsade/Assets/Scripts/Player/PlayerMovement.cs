@@ -21,13 +21,16 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public float jumpTimer;
 
     private float _horizontal;
-    private bool _isFacingRight;
+    private const string LEFT = "left";
+    private const string RIGHT = "right";
+    private string _facingDirection;
     // ============================================================
 
     private void Awake()
     {
         PlayerControllerScript = gameObject.GetComponent<PlayerController>();
         PlayerRb2D = gameObject.GetComponent<Rigidbody2D>();
+        _facingDirection = RIGHT;
     }
 
     void FixedUpdate()  // Make sure player can't jump forever
@@ -40,22 +43,25 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (_isFacingRight && _horizontal > 0f)
-        {
-            Flip();
-        }
-        else if (!_isFacingRight && _horizontal < 0f)
-        {
-            Flip();
-        }
+        Flip();
     }
 
     private void Flip()
     {
-        _isFacingRight = !_isFacingRight;
         Vector3 localScale = transform.localScale;
-        localScale.x *= -1f;
-        transform.localScale = localScale;
+
+        if (_facingDirection == LEFT && _horizontal > 0f)
+        {
+            _facingDirection = RIGHT;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+        else if (_facingDirection == RIGHT && _horizontal < 0f)
+        {
+            _facingDirection = LEFT;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
     }
 
     public bool isRunning;

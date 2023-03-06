@@ -5,12 +5,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {   
-    //Accessing Other Scripts
+    // Accessing Other Scripts
     [SerializeField] internal PlayerAnimations PlayerAnimationsScript;
-    [SerializeField] internal PlayerBattleInput PlayerBattleInputScript;
+    [SerializeField] internal EnterBattle EnterBattleScript;
     [SerializeField] internal PlayerMovement PlayerMovementScript;
 
-    //Accessing Player Component
+    // Accessing Player Component
     [HideInInspector] public Rigidbody2D PlayerRb2D;
 
     private void Awake()
